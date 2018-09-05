@@ -40,10 +40,12 @@ app.get("/urls", (req, res) => {
      };
     res.render("urls_show", templateVars);
   });
-
+  //Receive new url and add it 
   app.post("/urls", (req, res) => {
     console.log(req.body);  // debug statement to see POST parameters
+    urlDatabase[generateRandomString(6)] = req.body.longURL
     res.send("Ok");         // Respond with 'Ok' (we will replace this)
+    console.log("new URL db is " + JSON.stringify(urlDatabase))
   });
 
   app.get("/u/:shortURL", (req, res) => {
