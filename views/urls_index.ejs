@@ -8,7 +8,8 @@
     <ul>
         <% for (var url in urls) { %>
             <li>
-                <%= url %> : <%= urls[url] %>
+                <%= url %> : <%= urls[url] %> 
+                <a href="/urls/<%=url%>">Edit</a>
                 <form method="POST" action="/urls/<%=url%>/delete" id=<%=url%> >
                     <input type="hidden" name="delTarg" value=<%= url %> >
                 </form>
