@@ -47,6 +47,17 @@ app.get("/urls", (req, res) => {
     res.send("Ok");         // Respond with 'Ok' (we will replace this)
     console.log("new URL db is " + JSON.stringify(urlDatabase))
   });
+  //Receive a new url to update 
+  app.post("/urls/:id", (req, res) => {
+    var id = req.params.id
+    var newURL = req.body.newURL
+    console.log("Updating URL with id: " + id);  // debug statement to see POST parameters
+    console.log("new URL is: " + newURL)
+    console.log("Old db: " + JSON.stringify(urlDatabase))
+    urlDatabase[id] = newURL
+    console.log("New db: " + JSON.stringify(urlDatabase))
+    res.redirect("/urls")
+  });
 
   app.get("/u/:shortURL", (req, res) => {
     let longURL = urlDatabase[req.params.shortURL]
@@ -57,10 +68,10 @@ app.get("/urls", (req, res) => {
     app.post('/urls/:id/delete', function (req, res) {
         var delTarg = req.body.delTarg
        console.log("Received delete request " + delTarg)
-       console.log("new db: " + JSON.stringify(urlDatabase))
+       console.log("Old db: " + JSON.stringify(urlDatabase))
        console.log("We are going to delete " + urlDatabase[delTarg])
        delete urlDatabase[delTarg]
-       console.log("old db: " + JSON.stringify(urlDatabase))
+       console.log("New db: " + JSON.stringify(urlDatabase))
        res.redirect("/urls")
         //res.send('POST request to the homepage')
     })
