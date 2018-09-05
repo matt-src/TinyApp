@@ -7,7 +7,15 @@
     <!-- Add your EJS code here -->
     <ul>
         <% for (var url in urls) { %>
-            <li><%= url %></li>
+            <li>
+                <%= url %>
+                <form method="POST" action="/urls/<%=url%>/delete" id=<%=url%> >
+                    <input type="hidden" name="delTarg" value=<%= url %> >
+                </form>
+                <button type="submit" form=<%=url%> value="Submit">Delete</button> 
+                
+
+            </li>
         <% }; %>
     </ul>
 </body>

@@ -51,9 +51,21 @@ app.get("/urls", (req, res) => {
     res.redirect(longURL);
   });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
+    // POST method route
+    app.post('/urls/:id/delete', function (req, res) {
+        var delTarg = req.body.delTarg
+       console.log("Received delete request " + delTarg)
+       console.log("new db: " + JSON.stringify(urlDatabase))
+       console.log("We are going to delete " + urlDatabase[delTarg])
+       delete urlDatabase[delTarg]
+       console.log("old db: " + JSON.stringify(urlDatabase))
+       res.redirect("/urls")
+        //res.send('POST request to the homepage')
+    })
+
+    app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}!`);
+    });
 
 function generateRandomString(digits) {
     //Solution from https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
