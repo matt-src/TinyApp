@@ -6,19 +6,42 @@ var PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
-//res.cookie('some_cross_domain_cookie', 'http://mysubdomain.example.com',{domain:'example.com', encode: String});
+let templateVars = {
+  user: "none",
+  users: {}
+};
 
 const bodyParser = require("body-parser");
+
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use((req, res, next) => {
+  templateVars.user = users[req.cookies.user_id];
+  templateVars.users = users;
+  next();
+ });
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 app.get("/", (req, res) => {
   let templateVars = { 
-    username: req.cookies["username"],
+    user: req.cookies["user_id"],
   }
   res.render("partials/_header", templateVars)
 });
@@ -33,7 +56,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
     let templateVars = { 
-      username: req.cookies["username"],
+      user: req.cookies["user_id"],
       urls: urlDatabase };
     res.render("urls_index", templateVars);
   });
@@ -44,7 +67,7 @@ app.get("/urls", (req, res) => {
 
   app.get("/urls/:id", (req, res) => {
     let templateVars = { 
-      username: req.cookies["username"],
+      user: req.cookies["user_id"],
         shortURL: req.params.id,
         urls: urlDatabase
      };
@@ -74,6 +97,41 @@ app.get("/urls", (req, res) => {
     res.redirect(longURL);
   });
 
+  app.get("/login", (req, res) => {
+    let templateVars = { 
+        user: req.cookies["user_id"],
+        users: users,
+        shortURL: req.params.id,
+        urls: urlDatabase
+     };
+    res.render("urls_login", templateVars)
+  });
+
+  app.get("/register", (req, res) => {
+    res.render("urls_register")
+  });
+
+  app.post('/register', function (req, res) {
+    console.log("old user list: " + JSON.stringify(users))
+    let newEmail = req.body.email;
+    let newPassword = req.body.password;
+    if(newEmail.length < 1 || newPassword.length < 1){
+      res.status(400);
+      res.send('Empty email or password');
+    }
+  let randID = generateRandomString(10)
+    var newUser = {
+      id: randID,
+      email: newEmail,
+      password: newPassword
+    }
+    //set cookie
+    res.cookie('user_id', randID)
+    users[randID] = newUser;
+    console.log("new user list: " + JSON.stringify(users))
+    res.redirect("/urls")
+  });
+  
     // POST method route
     app.post('/urls/:id/delete', function (req, res) {
         var delTarg = req.body.delTarg
@@ -88,15 +146,51 @@ app.get("/urls", (req, res) => {
 
     //Handle login
     app.post("/login", (req, res) => {
-      var username = req.body.username
-      console.log("Logged in as " + username)
-      res.cookie('username', username)
-      res.redirect("/urls")
+      let email = req.body.email;
+      let password = req.body.password;
+      var found = false;
+      console.log("trying to log in with email " + email  + " and password " + password)
+      //See if the email exists
+      for(var em in users){
+        console.log(em)
+        
+        console.log("checking " + users[em].email)
+        if(users[em].email == email){
+          console.log("email " + email + "located at id " + em)
+          found = true;
+        }
+       //res.status(403);
+        //res.send('Email not found');
+      }
+      if(!found){
+        res.status(403);
+        res.send('Email not found');
+      }
+      else{
+        console.log("Email found, trying password")
+        if(users[em].password === password){
+          console.log("Password is correct! Logged in!")
+          res.cookie('user_id', em)
+          res.redirect("/")
+        }
+        else{
+          console.log("Password is wrong!")
+          res.status(403);
+          res.send('Incorrect password');
+        }
+      }
+      /*else if (!users[email] === pass){
+        res.status(403);
+        res.send('Incorrect password');
+      }
+      else{
+        res.cookie('user_id', randID)
+      }*/
     });
 
     app.post("/logout", (req, res) => {
       console.log("Logging out")
-      res.clearCookie('username')
+      res.clearCookie('user_id')
       res.redirect("/urls")
     });
 

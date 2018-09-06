@@ -1,15 +1,14 @@
-<%if (username) {%>  
-    We're logged in
-    <form action="/logout" method="POST" style="margin:150px;">
-        <input type="submit" value="Sign Out">
+<% if (typeof user == 'undefined' || typeof users == 'undefined') { console.log("We are not logged in!") %> 
+We're not logged in <br />
+<a href="/login">Log In</a>
+<br />
+<a href="/register">Register</a>
+        <%} else if (users[user]) { %>
+            We're logged in as <%=JSON.stringify(users[user].email)%>
+            <% console.log("we're logged in as " + JSON.stringify(users[user].email)) %>
+            <form action="/logout" method="POST" style="margin:150px;">
+                <input type="submit" value="Sign Out">
+            </form>
+            
     </form>
-        <%} else { %>
-
-<form action="/login" method="POST" style="margin:150px;">
-            <input id="username" type="text" name="username" placeholder="Enter username" style="width: 300px">
-            <input type="submit" value="Sign In">   
-         <% }%>
-
-    
-
-  </form>
+<%} %>

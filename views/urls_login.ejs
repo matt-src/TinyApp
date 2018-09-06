@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head></head>
+  <body style="font-size:20px; padding:50px;">
+    <% include partials/_header %>
+    <% if (typeof user == 'undefined' || typeof users == 'undefined'){ %>
+    <form action="/login" method="POST" style="margin:150px;">
+      <label >Enter an email and password to log in:</label>
+      <br />
+      <input id="email" type="text" name="email" placeholder="email@example.com" style="width: 300px">
+      <br />
+      <input id="password" type="password" name="password" style="width: 300px">   
+      <input type="submit" value="Submit">
+    </form>
+    <% } %>
+  </body>
+</html>
