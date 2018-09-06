@@ -1,8 +1,12 @@
 var express = require("express");
+var cookieParser = require('cookie-parser')
 var app = express();
+app.use(cookieParser())
 var PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+
+//res.cookie('some_cross_domain_cookie', 'http://mysubdomain.example.com',{domain:'example.com', encode: String});
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -13,7 +17,10 @@ var urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  let templateVars = { 
+    username: req.cookies["username"],
+  }
+  res.render("partials/_header", templateVars)
 });
 
 app.get("/urls.json", (req, res) => {
@@ -25,7 +32,9 @@ app.get("/hello", (req, res) => {
   });
 
 app.get("/urls", (req, res) => {
-    let templateVars = { urls: urlDatabase };
+    let templateVars = { 
+      username: req.cookies["username"],
+      urls: urlDatabase };
     res.render("urls_index", templateVars);
   });
 
@@ -35,6 +44,7 @@ app.get("/urls", (req, res) => {
 
   app.get("/urls/:id", (req, res) => {
     let templateVars = { 
+      username: req.cookies["username"],
         shortURL: req.params.id,
         urls: urlDatabase
      };
@@ -75,6 +85,20 @@ app.get("/urls", (req, res) => {
        res.redirect("/urls")
         //res.send('POST request to the homepage')
     })
+
+    //Handle login
+    app.post("/login", (req, res) => {
+      var username = req.body.username
+      console.log("Logged in as " + username)
+      res.cookie('username', username)
+      res.redirect("/urls")
+    });
+
+    app.post("/logout", (req, res) => {
+      console.log("Logging out")
+      res.clearCookie('username')
+      res.redirect("/urls")
+    });
 
     app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
