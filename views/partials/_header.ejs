@@ -1,4 +1,9 @@
-<% if (typeof user == 'undefined' || typeof users == 'undefined') { console.log("We are not logged in!") %> 
+<% console.log("Loading header page") %>
+<% if (typeof user == 'undefined' || typeof users == 'undefined') { 
+    console.log("user is " + user);
+    console.log("users is " + users);
+    console.log("We are not logged in!") 
+    %> 
 We're not logged in <br />
 <a href="/login">Log In</a>
 <br />

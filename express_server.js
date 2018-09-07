@@ -22,11 +22,17 @@ app.use((req, res, next) => {
  });
 
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+   'b2xVn2' : {
+     longURL: "http://www.lighthouselabs.ca",
+     userID: "userRandomID"
+   },
+  '9sm5xK' : {
+    longURL : "http://www.google.com",
+    userID: "user2RandomID"
+  }
 };
 
-const users = { 
+const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
@@ -42,6 +48,7 @@ const users = {
 app.get("/", (req, res) => {
   let templateVars = { 
     user: req.cookies["user_id"],
+    users: users
   }
   res.render("partials/_header", templateVars)
 });
@@ -57,26 +64,42 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
     let templateVars = { 
       user: req.cookies["user_id"],
-      urls: urlDatabase };
+      urls: urlDatabase,
+      users: users
+    };
     res.render("urls_index", templateVars);
   });
 
   app.get("/urls/new", (req, res) => {
-    res.render("urls_new");
+    let templateVars = { 
+      user: req.cookies["user_id"],
+      urls: urlDatabase,
+      users: users
+    };
+    if(!req.cookies["user_id"]){
+      console.log("Trying to create new URL but we're not logged in")
+      res.redirect("/login")
+    }
+    res.render("urls_new", templateVars);
   });
 
   app.get("/urls/:id", (req, res) => {
     let templateVars = { 
-      user: req.cookies["user_id"],
+        user: req.cookies["user_id"],
         shortURL: req.params.id,
-        urls: urlDatabase
+        urls: urlDatabase,
+        users: users
      };
     res.render("urls_show", templateVars);
   });
   //Receive new url and add it 
   app.post("/urls", (req, res) => {
     console.log(req.body);  // debug statement to see POST parameters
-    urlDatabase[generateRandomString(6)] = req.body.longURL
+    var tmp = {
+      userID : req.cookies["user_id"],
+      longURL : req.body.longURL
+    }
+    urlDatabase[generateRandomString(6)] = tmp
     res.send("Ok");         // Respond with 'Ok' (we will replace this)
     console.log("new URL db is " + JSON.stringify(urlDatabase))
   });
@@ -108,7 +131,7 @@ app.get("/urls", (req, res) => {
   });
 
   app.get("/register", (req, res) => {
-    res.render("urls_register")
+    res.render("urls_register", templateVars)
   });
 
   app.post('/register', function (req, res) {
@@ -135,13 +158,30 @@ app.get("/urls", (req, res) => {
     // POST method route
     app.post('/urls/:id/delete', function (req, res) {
         var delTarg = req.body.delTarg
+        let ownerID = urlDatabase[delTarg].userID
+        let userID = req.cookies["user_id"]
+        console.log("owner is " + ownerID)
+        console.log("our id is " + userID)
        console.log("Received delete request " + delTarg)
-       console.log("Old db: " + JSON.stringify(urlDatabase))
+       console.log("URL owner's ID is : " + urlDatabase[delTarg].userID)
+       console.log("our id is : " + req.cookies["user_id"])
+       if(!req.cookies["user_id"]){
+        console.log("Trying to create delete link but we're not logged in")
+        res.redirect("/login")
+      }
+      else if (ownerID == userID){
+        console.log("our id is : " + req.cookies["user_id"])
+        console.log("We own this link!")
+        res.redirect("/login")
+      }
+      else {
+        console.log('houston we have a problem')
+       /*console.log("Old db: " + JSON.stringify(urlDatabase))
        console.log("We are going to delete " + urlDatabase[delTarg])
        delete urlDatabase[delTarg]
        console.log("New db: " + JSON.stringify(urlDatabase))
-       res.redirect("/urls")
-        //res.send('POST request to the homepage')
+       res.redirect("/urls")*/
+      }
     })
 
     //Handle login
