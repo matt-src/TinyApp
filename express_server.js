@@ -13,11 +13,12 @@ let templateVars = {
 	users: {}
 };
 
-/*
-const password = "purple-monkey-dinosaur"; // you will probably this from req.params
-const hashedPassword = bcrypt.hashSync(password, 10);
-console.log("hashed password is " + hashedPassword)
-*/
+var hashedPassword = undefined;
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
 
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -216,7 +217,7 @@ app.post('/login', (req, res) => {
         
 		console.log('checking ' + users[em].email);
 		if(users[em].email == email){
-			console.log('email ' + email + 'located at id ' + em);
+			console.log('email: ' + email + ' located at id ' + em);
 			found = true;
 		}
 		//res.status(403);
@@ -225,22 +226,25 @@ app.post('/login', (req, res) => {
 	if(!found){
 		res.status(403);
 		res.send('Email not found');
-	}
+  }
 	else{
-		console.log('Email found, trying password');
-		//if(users[em].password === password){
-      if( bcrypt.compareSync(password, hashedPassword) ){
+    let targetHash = users[em].password;
+    console.log('Email found, trying password');
+    console.log("Our password is " + password + ", hashed password is " + targetHash);
+		let authed = false;
+    authed = bcrypt.compareSync(password, targetHash);
+    console.log("Results of comparison is " + authed)
+      if(authed){
 			console.log('Password is correct! Logged in!');
 			res.cookie('user_id', em);
-			res.redirect('/');
+      res.redirect('/');
+      }
+      else{
+        console.log('Password is incorrect!');
+        res.redirect('/');
+      }
 		}
-		else{
-			console.log('Password is wrong!');
-			res.status(403);
-			res.send('Incorrect password');
-		}
-	}
-});
+	});
 
 app.post('/logout', (req, res) => {
 	console.log('Logging out');
