@@ -10,7 +10,7 @@ We're not logged in <br />
 <a href="/register">Register</a>
         <%} else if (users[user]) { %>
             We're logged in as <%=JSON.stringify(users[user].email)%>
-            <% console.log("we're logged in as " + JSON.stringify(users[user].email) + "with ID " + users[user].id) %>
+            <% console.log("we're logged in as " + JSON.stringify(users[user].email) + " with ID " + users[user].id) %>
             <form action="/logout" method="POST" style="margin:150px;">
                 <input type="submit" value="Sign Out">
             </form>

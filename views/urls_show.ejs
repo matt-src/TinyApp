@@ -8,6 +8,7 @@
     <div>
             <p>Short URL <%= shortURL %> points to  <%= urls[shortURL].longURL%></p>
             <form action="/urls/<%=shortURL%>" method="POST" style="margin:150px;">
+                <p>Update URL:</p>
                 <input id="newURL" type="text" name="newURL" placeholder="http://" style="width: 300px">
                 <input type="submit" value="Submit">
             </form>
